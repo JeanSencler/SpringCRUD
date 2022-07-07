@@ -1,5 +1,6 @@
 package com.crud.demo.controller;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,29 +15,44 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.crud.demo.model.Country;
 import com.crud.demo.service.CountryBadRequestException;
 import com.crud.demo.service.CountryNotFoundException;
+import com.crud.demo.service.ExternalResourceNotFoundException;
 import com.crud.demo.service.ICountryService;
 
 @RestController
 @CrossOrigin(allowedHeaders = "*")
-@RequestMapping("/api/v1/countries")
+@RequestMapping("/countries")
 public class CountryController {
 
 	private final ICountryService countryService;
+	private static final String EXTERNAL_ENDPOINT =  "https://restcountries.com/v2/lang/es";
 
 	@Autowired
 	public CountryController(ICountryService countryService) {
 		this.countryService = countryService;
 	}
 
-	@GetMapping("/all")
+	@GetMapping
 	public ResponseEntity<List<Country>> getAll() {
 		return ResponseEntity.ok(this.countryService.getAll());
 	}
+	@GetMapping("/external")
+	public ResponseEntity<List<Object>> getAllFromExternalAPI() {
+		try {
+			RestTemplate restTemplate = new RestTemplate();
+			List<Object> countries = Arrays.asList(restTemplate.getForObject(CountryController.EXTERNAL_ENDPOINT, List.class));
+			return ResponseEntity.ok(countries);
+		} catch (RestClientException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, ExternalResourceNotFoundException.EXTERNAL_RESOURCE_NOT_FOUND.concat(CountryController.EXTERNAL_ENDPOINT), null);
+		}
+	}
+
 
 	@GetMapping("/{id}")
 	public ResponseEntity<Country> getById(final @PathVariable long id) {
