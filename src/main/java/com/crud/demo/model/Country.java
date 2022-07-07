@@ -14,6 +14,16 @@ public class Country {
 	private String countryName;
 	private char state;
 	
+	public Country() {
+		
+	}
+	
+	public Country(long countryId, String countryName, char state) {
+		this.countryId = countryId;
+		this.countryName = countryName;
+		this.state = state;
+	}
+	
 	public long getCountryId() {
 		return countryId;
 	}
