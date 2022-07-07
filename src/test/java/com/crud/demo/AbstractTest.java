@@ -25,7 +25,7 @@ public abstract class AbstractTest {
    WebApplicationContext webApplicationContext;
 
    protected void setUp() {
-      mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+      this.mvc = MockMvcBuilders.webAppContextSetup(this.webApplicationContext).build();
    }
    protected String mapToJson(Object obj) throws JsonProcessingException {
       ObjectMapper objectMapper = new ObjectMapper();
