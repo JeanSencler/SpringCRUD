@@ -1,34 +1,47 @@
 package com.crud.demo;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.crud.demo.model.Country;
+import com.crud.demo.service.CountryServiceImpl;
 
  class CountryControllerTest extends AbstractTest{
 	
 	 
-	
-	@Test
-	 void getLocalCountryList() throws Exception {
-	   String uri = "/countries";
-	   MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get(uri)
-	      .accept(MediaType.APPLICATION_JSON_VALUE)).andReturn();
-	   
-	   int status = mvcResult.getResponse().getStatus();
-	   assertEquals(200, status);
-	   String content = mvcResult.getResponse().getContentAsString();
-	   Country[] countryList = super.mapFromJson(content, Country[].class);
-	   assertTrue(countryList.length > 0);
+	 @Autowired
+		private CountryServiceImpl underTest;
+	 
+	 @Test
+	 void debeListarPaises() throws Exception {
+		List<Country> list = underTest.getAll();
+		 assertEquals(false, list.isEmpty());
 	}
-	
+	 
+	 @Test
+	 void debeObtenerPaisPorID() throws Exception {
+		 Country country = underTest.getById((long) 1);
+		 assertEquals("Pais Generico 1", country.getCountryName());
+	}
+	 
+	 @Test
+	 void debeCrearPaisLocal() throws Exception {
+		 Country country = new Country();
+		 country.setCountryId(3);
+		 country.setCountryName("Pais Generico 3");
+		 country.setState('S');
+		 underTest.create(country);
+		 Country createdCountry = underTest.getById((long) 3);
+		 assertEquals("Pais Generico 3", createdCountry.getCountryName());
+	}
+	 
+	 /*
 	@Test
-	 void getExternalCountryList() throws Exception {
+	 void debeListarPaisesExternosAPI() throws Exception {
 	   String uri = "/countries/external";
 	   MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get(uri)
 	      .accept(MediaType.APPLICATION_JSON_VALUE)).andReturn();
@@ -38,22 +51,5 @@ import com.crud.demo.model.Country;
 	   String content = mvcResult.getResponse().getContentAsString();
 	   Object[] countryList = super.mapFromJson(content, Object[].class);
 	   assertTrue(countryList.length > 0);
-	}
-	
-	@Test
-	 void createProduct() throws Exception {
-	   String uri = "/countries";
-	   Country country = new Country();
-	   country.setCountryId(3);
-	   country.setCountryName("TestCountry");
-	   
-	   String inputJson = super.mapToJson(country);
-	   MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.post(uri)
-	      .contentType(MediaType.APPLICATION_JSON_VALUE).content(inputJson)).andReturn();
-	   
-	   int status = mvcResult.getResponse().getStatus();
-	   assertEquals(200, status);
-	  /* String content = mvcResult.getResponse().getContentAsString();
-	   assertEquals("Country is created successfully", content);*/
-	}
+	}*/
 }
