@@ -1,9 +1,9 @@
 package com.crud.demo.controller;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.crud.demo.model.Country;
@@ -31,7 +30,7 @@ import com.crud.demo.service.ICountryService;
 public class CountryController {
 
 	private final ICountryService countryService;
-	private static final String EXTERNAL_ENDPOINT =  "https://restcountries.com/v2/lang/es";
+	private static final String EXTERNAL_ENDPOINT =  "https://restcountries.com/v2/lang/es?fields=name";
 
 	@Autowired
 	public CountryController(ICountryService countryService) {
@@ -43,11 +42,9 @@ public class CountryController {
 		return ResponseEntity.ok(this.countryService.getAll());
 	}
 	@GetMapping("/external")
-	public ResponseEntity<List<Object>> getAllFromExternalAPI() {
-		try {
-			RestTemplate restTemplate = new RestTemplate();
-			List<Object> countries = Arrays.asList(restTemplate.getForObject(CountryController.EXTERNAL_ENDPOINT, List.class));
-			return ResponseEntity.ok(countries);
+	public ResponseEntity<List<?>> getAllFromExternalAPI() {
+		try {			
+			return ResponseEntity.ok(this.countryService.getExternalCountryList(CountryController.EXTERNAL_ENDPOINT));
 		} catch (RestClientException e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, ExternalResourceNotFoundException.EXTERNAL_RESOURCE_NOT_FOUND.concat(CountryController.EXTERNAL_ENDPOINT), null);
 		}
@@ -64,11 +61,11 @@ public class CountryController {
 		}
 	}
 
-	@PostMapping
-	public ResponseEntity<Country> create(final @RequestBody Country country) {
+	@PostMapping("/create")
+	public ResponseEntity<Country> create(final @RequestBody Country country) throws CountryBadRequestException {
 		try {
 			return ResponseEntity.ok(this.countryService.create(country));
-		} catch (CountryBadRequestException e) {
+		} catch (DataIntegrityViolationException | CountryBadRequestException e) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 					CountryBadRequestException.COUNTRY_VERIFY_REQUEST_BODY, e);
 		}

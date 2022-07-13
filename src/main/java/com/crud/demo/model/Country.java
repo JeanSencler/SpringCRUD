@@ -1,5 +1,6 @@
 package com.crud.demo.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -10,18 +11,21 @@ public class Country {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "COUNTRY_ID")
 	private long countryId;
-	private String countryName;
-	private char state;
+	@Column(name = "COUNTRY_NAME")
+	private String name;
+	@Column(name = "INDEPENDENT")
+	private String independent;
 	
 	public Country() {
 		
 	}
 	
-	public Country(long countryId, String countryName, char state) {
+	public Country(long countryId, String countryName, String independent) {
 		this.countryId = countryId;
-		this.countryName = countryName;
-		this.state = state;
+		this.name = countryName;
+		this.independent = independent;
 	}
 	
 	public long getCountryId() {
@@ -30,21 +34,21 @@ public class Country {
 	public void setCountryId(long countryId) {
 		this.countryId = countryId;
 	}
-	public String getCountryName() {
-		return countryName;
+	public String getName() {
+		return name;
 	}
-	public void setCountryName(String countryName) {
-		this.countryName = countryName;
+	public void setName(String countryName) {
+		this.name = countryName;
 	}
-	public char getState() {
-		return state;
+	public String getIndependent() {
+		return independent;
 	}
-	public void setState(char state) {
-		this.state = state;
+	public void setIndependent(String independent) {
+		this.independent = independent;
 	}
 	@Override
 	public String toString() {
-		return "Country [countryId=" + countryId + ", countryName=" + countryName + ", state=" + state + "]";
+		return "Country [countryId=" + countryId + ", countryName=" + name + ", state=" + independent + "]";
 	}
 	
 }
